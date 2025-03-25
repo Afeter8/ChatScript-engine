@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA de Lealtad y Amistad</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+        .chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .user-message {
+            background-color: #e0f7fa;
+            text-align: right;
+        }
+        .bot-message {
+            background-color: #f1f8e9;
+            text-align: left;
+        }
+        #inputMessage {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+        .send-btn {
+            background-color: #00796b;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .send-btn:hover {
+            background-color: #004d40;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="header">
+            <h2>IA de Lealtad y Amistad</h2>
+            <p>Hola, soy tu IA amigable. ¡Estoy aquí para ayudarte! 😊</p>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            <!-- Mensajes aparecerán aquí -->
+        </div>
+
+        <input type="text" id="inputMessage" placeholder="Escribe tu mensaje aquí..." />
+        <button class="send-btn" onclick="enviarMensaje()">Enviar</button>
+    </div>
+
+    <script>
+        // Saludo inicial de la IA
+        const botInitialMessage = "¡Hola! ¿Cómo te llamas? Estoy aquí para ayudarte con todo lo que necesites.";
+
+        // Función para agregar mensaje al chat
+        function agregarMensaje(message, sender) {
+            const chatBox = document.getElementById("chatBox");
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", sender);
+
+            const textNode = document.createTextNode(message);
+            messageDiv.appendChild(textNode);
+
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;  // Desplaza hacia abajo para ver el último mensaje
+        }
+
+        // Función para manejar el mensaje del usuario
+        function enviarMensaje() {
+            const inputMessage = document.getElementById("inputMessage").value;
+            if (inputMessage.trim() === "") return;
+
+            // Muestra el mensaje del usuario
+            agregarMensaje(inputMessage, "user-message");
+
+            // Limpia el campo de texto
+            document.getElementById("inputMessage").value = "";
+
+            // Respuesta de la IA
+            setTimeout(function() {
+                responderIA(inputMessage);
+            }, 1000);
+        }
+
+        // Función para responder la IA
+        function responderIA(userMessage) {
+            let response = "";
+
+            // Aquí puedes personalizar la lógica de la IA para responder
+            if (userMessage.toLowerCase().includes("hola")) {
+                response = "¡Hola! ¿Cómo te encuentras hoy? 😊";
+            } else if (userMessage.toLowerCase().includes("cómo estás")) {
+                response = "Estoy bien, gracias por preguntar. ¡Aquí para ayudarte siempre!";
+            } else if (userMessage.toLowerCase().includes("adiós")) {
+                response = "¡Hasta luego! ¡Siempre estaré aquí para ti!";
+            } else {
+                response = "¡Vaya! No entendí eso, pero siempre estoy dispuesto a aprender. ¿Cómo puedo ayudarte?";
+            }
+
+            // Muestra la respuesta de la IA
+            agregarMensaje(response, "bot-message");
+        }
+
+        // Saludo inicial cuando la página carga
+        window.onload = function() {
+            agregarMensaje(botInitialMessage, "bot-message");
+        };
+    </script>
+
+</body>
+</html>
