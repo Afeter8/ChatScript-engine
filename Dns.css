@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tigo Start - Seguridad Avanzada</title>
+    <style>
+        body { background: #000; color: #0f0; text-align: center; font-family: Arial; }
+        button { background: #0a0; color: white; padding: 10px; border: none; cursor: pointer; }
+        button:hover { background: #080; }
+    </style>
+</head>
+<body>
+    <h1>🔒 Sistema Seguro y Descentralizado</h1>
+    <p>Protección activa contra hackeos y modificaciones no autorizadas.</p>
+
+    <button onclick="verificarIntegridad()">Verificar Seguridad</button>
+    <button onclick="restaurarCodigo()">Restaurar Código Seguro</button>
+
+    <script>
+        // 🔐 Código encriptado para proteger la web
+        const codigoOriginal = "c2FmZ
