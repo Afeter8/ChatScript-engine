@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FGME Power Peg - Sistema de IA Avanzado</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <style>
+    :root {
+      --primary-color: #00ff00;
+      --secondary-color: #00cccc;
+      --accent-color: #ff00ff;
+      --warning-color: #ffcc00;
+      --success-color: #00ff00;
+      --error-color: #ff0000;
+      --background-color: #000;
+      --panel-bg: #0a0a0a;
+      --terminal-border: #00ff00;
+      --text-color: #00ff00;
+      --user-color: #ff9900;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Courier New', monospace;
+    }
+
+    body {
+      background-color: var(--background-color);
+      color: var(--text-color);
+      padding: 20px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(0, 255, 0, 0.05) 2%, transparent 20%),
+        radial-gradient(circle at 75% 75%, rgba(0, 204, 204, 0.05) 2%, transparent 20%);
+      background-size: 30px 30px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 20px;
+    }
+
+    header {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--terminal-border);
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .user-info {
+      position: absolute;
+      top: 20px;
+      right: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--user-color);
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, var(--user-color), var(--accent-color));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+
+    .subtitle {
+      color: var(--secondary-color);
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .panel {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--terminal-border);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+      animation: scanline 3s linear infinite;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+    }
+
+    .panel-title i {
+      margin-right: 10px;
+      color: var(--secondary-color);
+      font-size: 1.5rem;
+    }
+
+    .activation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .activation-category {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      padding: 15px;
+      border: 1px solid var(--terminal-border);
+      transition: all 0.3s ease;
+    }
+
+    .activation-category:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 255, 0, 0.15);
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+    }
+
+    .category-header i {
+      margin-right: 10px;
+      font-size: 1.2rem;
+    }
+
+    .module-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .module-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      background: rgba(0, 255, 0, 0.05);
+      border-radius: 5px;
+      border-left: 3px solid var(--primary-color);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .module-item:hover {
+      background: rgba(0, 255, 0, 0.1);
+      transform: translateX(5px);
+    }
+
+    .module-info {
+      flex: 1;
+    }
+
+    .module-name {
+      font-weight: bold;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .module-badge {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: var(--accent-color);
+      color: black;
+    }
+
+    .module-desc {
+      font-size: 0.8rem;
+      color: var(--secondary-color);
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 6px;
+      background-color: #1a1a1a;
+      border-radius: 3px;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background-color: var(--secondary-color);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+      position: relative;
+    }
+
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background-image: linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.2) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.2) 75%,
+        transparent 75%,
+        transparent
+      );
+      background-size: 10px 10px;
+      animation: move 1s linear infinite;
+    }
+
+    .module-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .status-active {
+      background-color: var(--success-color);
+      box-shadow: 0 0 10px var(--success-color);
+    }
+
+    .status-inactive {
+      background-color: var(--error-color);
+    }
+
+    .status-pending {
+      background-color: var(--warning-color);
+      box-shadow: 0 0 10px var(--warning-color);
+      animation: pulse 2s infinite;
+    }
+
+    .status-loading {
+      background-color: var(--secondary-color);
+      box-shadow: 0 0 10px var(--secondary-color);
+      animation: pulse 1s infinite;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #333;
+      transition: .4s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--success-color);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    .control-panel {
+      grid-column: 1 / -1;
+    }
+
+    .control-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .control-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--terminal-border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .control-button:hover {
+      background: rgba(0, 255, 0, 0.1);
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 255, 0, 0.2);
+    }
+
+    .control-button:active {
+      transform: translateY(0);
+    }
+
+    .control-button.loading {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .control-button.loading::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+      animation: loading 1.5s infinite;
+    }
+
+    .control-button i {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: var(--secondary-color);
+    }
+
+    .button-primary {
+      border-color: var(--accent-color);
+    }
+
+    .button-primary i {
+      color: var(--accent-color);
+    }
+
+    .stats-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .stat-card {
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--terminal-border);
+      border-radius: 8px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 255, 0, 0.1);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--secondary-color);
+      margin: 10px 0;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-color);
+    }
+
+    .log-container {
+      max-height: 300px;
+      overflow-y: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 20px;
+      border: 1px solid var(--terminal-border);
+    }
+
+    .log-entry {
+      margin-bottom: 8px;
+      padding: 8px;
+      border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .log-entry:hover {
+      background-color: rgba(0, 255, 0, 0.05);
+    }
+
+    .log-entry.new {
+      animation: highlight 2s ease;
+    }
+
+    .timestamp {
+      color: var(--secondary-color);
+      margin-right: 10px;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      background-color: var(--panel-bg);
+      border: 1px solid var(--terminal-border);
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      transform: translateX(100%);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      max-width: 350px;
+    }
+
+    .notification.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .notification.success {
+      border-color: var(--success-color);
+    }
+
+    .notification.error {
+      border-color: var(--error-color);
+    }
+
+    .notification.warning {
+      border-color: var(--warning-color);
+    }
+
+    .notification.info {
+      border-color: var(--secondary-color);
+    }
+
+    .theme-selector {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: var(--panel-bg);
+      border: 1px solid var(--terminal-border);
+      border-radius: 8px;
+      padding: 10px;
+      z-index: 100;
+    }
+
+    .theme-buttons {
+      display: flex;
+      gap: 5px;
+    }
+
+    .theme-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 1px solid #333;
+    }
+
+    .theme-default {
+      background: linear-gradient(135deg, #00ff00, #00cccc, #ff00ff);
+    }
+
+    .theme-dark {
+      background: linear-gradient(135deg, #003300, #004444, #660066);
+    }
+
+    .theme-blue {
+      background: linear-gradient(135deg, #0077ff, #00ccff, #5500ff);
+    }
+
+    .theme-red {
+      background: linear-gradient(135deg, #ff0000, #ff9900, #ff00ff);
+    }
+
+    .shortcut-keys {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--panel-bg);
+      border: 1px solid var(--terminal-border);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.8rem;
+    }
+
+    .shortcut-keys kbd {
+      background-color: #1a1a1a;
+      padding: 2px 5px;
+      border-radius: 3px;
+      border: 1px solid var(--terminal-border);
+    }
+
+    .export-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--terminal-border);
+      color: var(--text-color);
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.3s ease;
+    }
+
+    .export-btn:hover {
+      background: rgba(0, 255, 0, 0.1);
+    }
+
+    .ipfs-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+
+    .ipfs-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .ipfs-connected {
+      background-color: var(--success-color);
+      box-shadow: 0 0 5px var(--success-color);
+    }
+
+    .ipfs-disconnected {
+      background-color: var(--error-color);
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes rotatingBorder {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes loading {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    @keyframes highlight {
+      0% { background-color: rgba(0, 255, 0, 0.3); }
+      100% { background-color: transparent; }
+    }
+
+    @keyframes move {
+      0% { background-position: 0 0; }
+      100% { background-position: 10px 0; }
+    }
+
+    @keyframes scanline {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .rotating-border {
+      position: relative;
+    }
+
+    .rotating-border::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+      background-size: 400% 400%;
+      z-index: -1;
+      animation: rotatingBorder 3s ease infinite;
+      border-radius: 10px;
+    }
+
+    /* Responsive design */
+    @media (max-width: 1200px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      
+      .activation-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .control-buttons {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .stats-panel {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .user-info {
+        position: static;
+        justify-content: center;
+        margin-top: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .control-buttons {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-panel {
+        grid-template-columns: 1fr;
+      }
+      
+      .module-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .module-status {
+        align-self: flex-end;
+        margin-top: 10px;
+      }
+      
+      .theme-selector, .shortcut-keys {
+        position: static;
+        margin-top: 20px;
+      }
+    }
+
+    /* Modo oscuro adicional */
+    .dark-mode {
+      --primary-color: #00cc00;
+      --secondary-color: #009999;
+      --accent-color: #cc00cc;
+      --background-color: #111;
+      --panel-bg: #050505;
+    }
+
+    /* Efectos de partículas */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background-color: var(--primary-color);
+      border-radius: 50%;
+      animation: float 5s infinite linear;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) translateX(100px);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="particles" id="particles"></div>
+  
+  <div class="container">
+    <header>
+      <h1>FGME POWER PEG SYSTEM</h1>
+      <div class="subtitle">Sistema de IA Avanzado - Secure Hub Integrado</div>
+      <div class="user-info">
+        <div class="user-avatar">FG</div>
+        <div>Fernando Guadalupe Méndez Espinoza</div>
+      </div>
+      <div class="ipfs-status">
+        <div class="ipfs-indicator" id="ipfs-status"></div>
+        <span id="ipfs-status-text">Conectando a IPFS...</span>
+      </div>
+    </header>
+
+    <div class="panel rotating-border">
+      <div class="panel-title">
+        <i class="fas fa-brain"></i>
+        <h2>Módulos de Inteligencia Artificial</h2>
+        <div class="export-btn" onclick="exportConfiguration()">
+          <i class="fas fa-download"></i> Exportar Config
+        </div>
+      </div>
+      
+      <div class="activation-grid">
+        <!-- Categoría: Seguridad -->
+        <div class="activation-category">
+          <div class="category-header">
+            <i class="fas fa-shield-alt" style="color: var(--success-color);"></i>
+            <h3>Seguridad Avanzada</h3>
+          </div>
+          <div class="module-list">
+            <div class="module-item" onclick="toggleModule('security', 'intrusionDetection')">
+              <div class="module-info">
+                <div class="module-name">
+                  Detección de Intrusos
+                  <span class="module-badge">NUEVO</span>
+                </div>
+                <div class="module-desc">Sistema neural para detección de patrones sospechosos</div>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: 85%;"></div>
+                </div>
+              </div>
+              <div class="module-status">
+                <div class="status-indicator status-active"></div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked data-category="security" data-module="intrusionDetection">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="module-item" onclick="toggleModule('security', 'adaptiveFirewall')">
+              <div class="module-info">
+                <div class="module-name">Firewall Adaptativo</div>
+                <div class="module-desc">Reglas de firewall inteligentes y auto-optimizables</div>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: 92%;"></div>
+                </div>
+              </div>
+              <div class="module-status">
+                <div class="status-indicator status-active"></div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked data-category="security" data-module="adaptiveFirewall">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="module-item" onclick="toggleModule('security', 'quantumEncryption')">
+              <div class="module-info">
+                <div class="module-name">Encriptación Cuántica</div>
+                <div class="module-desc">Algoritmos post-cuánticos para protección futura</div>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: 65%;"></div>
+                </div>
+              </div>
+              <div class="module-status">
+                <div class="status-indicator status-pending"></div>
+                <label class="toggle-switch">
+                  <input type="checkbox" data-category="security" data-module="quantumEncryption">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Categoría: Optimización -->
+        <div class="activation-category">
+          <div class="category-header">
+            <i class="fas fa-tachometer-alt" style="color: var(--secondary-color);"></i>
+            <h3>Optimización del Sistema</h3>
+          </div>
+          <div class="module-list">
+            <div class="module-item" onclick="toggleModule('optimization', 'autoTuning')">
+              <div class="module-info">
+                <div class="module-name">Auto-Tuning</div>
+                <div class="module-desc">Ajuste automático de parámetros del sistema</div>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: 78%;"></div>
+                </div>
+              </div>
+              <div class="module-status">
+                <div class="status-indicator status-active"></div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked data-category="optimization" data-module="autoTuning">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="module-item" onclick="toggleModule('optimization', 'resourceManagement')">
+              <div class="module-info">
+                <div class="module-name">Gestión de Recursos</div>
+                <div class="module-desc">Distribución inteligente de recursos del sistema</div>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: 90%;"></div>
+                </div>
+              </div>
+              <div class="module-status">
+                <div class="status-indicator status-active"></div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked data-category="optimization" data-module="resourceManagement">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="module-item" onclick="toggleModule('optimization', 'predictiveLoadBalancing')">
+              <div class="module-info">
+                <div class="module-name">Predictive Load Balancing</div>
+                <div class="module-desc">Balanceo de carga predictivo basado en ML</div>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: 72%;"></div>
+                </div>
+              </div>
+              <div class="module-status">
+                <div class="status-indicator status-pending"></div>
+                <label class="toggle-switch">
+                  <input type="checkbox" data-category="optimization" data-module="predictiveLoadBalancing">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Categoría: Análisis -->
+        <div class="activation-category">
+          <div class="category-header">
+            <i class="fas fa-chart-line" style="color: var(--accent-color);"></i>
+            <h3>Análisis Predictivo</h3>
+          </div>
+          <div class="module-list">
+            <div class="module-item" onclick="toggleModule('analytics', 'threatIntelligence')">
+              <div class="module-info">
+                <div class="module-name">Threat Intelligence</div>
+                <div class="module-desc">Análisis predictivo de amenazas emergentes</div>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: 88%;"></div>
+                </div>
+              </div>
+              <div class="module-status">
+                <div class="status-indicator status-active"></div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked data-category="analytics" data-module="threatIntelligence">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="module-item" onclick="toggleModule('analytics', 'patternRecognition')">
+              <div class="module-info">
+                <div class="module-name">Pattern Recognition</div>
+                <div class="module-desc">Reconocimiento de patrones de ataque complejos</div>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: 95%;"></div>
+                </div>
+              </div>
+              <div class="module-status">
+                <div class="status-indicator status-active"></div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked data-category="analytics" data-module="patternRecognition">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="module-item" onclick="toggleModule('analytics', 'behavioralAnalysis')">
+              <div class="module-info">
+                <div class="module-name">Behavioral Analysis</div>
+                <div class="module-desc">Análisis de comportamiento de red y usuarios</div>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: 82%;"></div>
+                </div>
+              </div>
+              <div class="module-status">
+                <div class="status-indicator status-active"></div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked data-category="analytics" data-module="behavioralAnalysis">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Categoría: Automatización -->
+        <div class="activation-category">
+          <div class="category-header">
+            <i class="fas fa-robot" style="color: var(--warning-color);"></i>
+            <h3>Automatización Inteligente</h3>
+          </div>
+          <div class="module-list">
+            <div class="module-item" onclick="toggleModule('automation', 'autoRemediation')">
+              <div class="module-info">
+                <div class="module-name">Auto-Remediation</div>
+                <div class="module-desc">Corrección automática de vulnerabilidades</div>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: 75%;"></div>
+                </div>
+              </div>
+              <div class="module-status">
+                <div class="status-indicator status-active"></div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked data-category="automation" data-module="autoRemediation">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="module-item" onclick="toggleModule('automation', 'responseAutomation')">
+              <div class="module-info">
+                <div class="module-name">Response Automation</div>
+                <div class="module-desc">Respuesta automática a incidentes</div>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: 68%;"></div>
+                </div>
+              </div>
+              <div class="module-status">
+                <div class="status-indicator status-pending"></div>
+                <label class="toggle-switch">
+                  <input type="checkbox" data-category="automation" data-module="responseAutomation">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="module-item" onclick="toggleModule('automation', 'selfHealing')">
+              <div class="module-info">
+                <div class="module-name">Self-Healing Network</div>
+                <div class="module-desc">Red con capacidad de auto-reparación</div>
+                <div class="progress-container">
+                  <div class="progress-bar" style="width: 60%;"></div>
+                </div>
+              </div>
+              <div class="module-status">
+                <div class="status-indicator status-pending"></div>
+                <label class="toggle-switch">
+                  <input type="checkbox" data-category="automation" data-module="selfHealing">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel control-panel">
+      <div class="panel-title">
+        <i class="fas fa-cogs"></i>
+        <h2>Controles de Activación</h2>
+      </div>
+      
+      <div class="control-buttons">
+        <div class="control-button" id="activate-all-btn" onclick="activateAllModules()">
+          <i class="fas fa-play-circle"></i>
+          <h3>Activar Todo</h3>
+          <p>Activa todos los módulos de IA</p>
+        </div>
+
+        <div class="control-button" id="deactivate-all-btn" onclick="deactivateAllModules()">
+          <i class="fas fa-stop-circle"></i>
+          <h3>Desactivar Todo</h3>
+          <p>Desactiva todos los módulos</p>
+        </div>
+
+        <div class="control-button button-primary" id="optimize-btn" onclick="optimizeSystem()">
+          <i class="fas fa-magic"></i>
+          <h3>Optimización Total</h3>
+          <p>Ejecuta optimización completa</p>
+        </div>
+
+        <div class="control-button" id="scan-btn" onclick="runSecurityScan()">
+          <i class="fas fa-shield-alt"></i>
+          <h3>Escaneo Completo</h3>
+          <p>Escaneo de seguridad profundo</p>
+        </div>
+
+        <div class="control-button" id="update-btn" onclick="updateAIModels()">
+          <i class="fas fa-sync-alt"></i>
+          <h3>Actualizar Modelos</h3>
+          <p>Actualiza modelos de IA</p>
+        </div>
+
+        <div class="control-button button-primary" id="emergency-btn" onclick="emergencyProtocol()">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h3>Protocolo Emergencia</h3>
+          <p>Activa medidas extremas</p>
+        </div>
+
+        <div class="control-button" id="ipfs-check-btn" onclick="bucleEterno()">
+          <i class="fas fa-network-wired"></i>
+          <h3>Verificar IPFS</h3>
+          <p>Verifica módulos IPFS</p>
+        </div>
+      </div>
+
+      <div class="stats-panel">
+        <div class="stat-card">
+          <i class="fas fa-microchip"></i>
+          <div class="stat-value" id="cpu-usage">12%</div>
+          <div class="stat-label">Uso de CPU</div>
+        </div>
+
+        <div class="stat-card">
+          <i class="fas fa-memory"></i>
+          <div class="stat-value" id="memory-usage">24%</div>
+          <div class="stat-label">Uso de Memoria</div>
+        </div>
+
+        <div class="stat-card">
+          <i class="fas fa-network-wired"></i>
+          <div class="stat-value" id="network-usage">18%</div>
+          <div class="stat-label">Uso de Red</div>
+        </div>
+
+        <div class="stat-card">
+          <i class="fas fa-brain"></i>
+          <div class="stat-value" id="ai-efficiency">96%</div>
+          <div class="stat-label">Eficiencia IA</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">
+        <i class="fas fa-terminal"></i>
+        <h2>Registro de Sistema FGME</h2>
+        <div class="export-btn" onclick="exportLog()">
+          <i class="fas fa-download"></i> Exportar Log
+        </div>
+      </div>
+      
+      <div class="log-container" id="activation-log">
+        <div class="log-entry">
+          <span class="timestamp">[12:34:56]</span> Sistema FGME Power Peg inicializado
+        </div>
+        <div class="log-entry">
+          <span class="timestamp">[12:35:01]</span> Módulo de Detección de Intrusos activado
+        </div>
+        <div class="log-entry">
+          <span class="timestamp">[12:35:05]</span> Firewall Adaptativo optimizado
+        </div>
+        <div class="log-entry">
+          <span class="timestamp">[12:35:10]</span> Análisis predictivo iniciado
+        </div>
+        <div class="log-entry">
+          <span class="timestamp">[12:35:15]</span> Threat Intelligence activado
+        </div>
+        <div class="log-entry">
+          <span class="timestamp">[12:35:20]</span> Auto-Tuning configurado
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="theme-selector">
+    <div style="margin-bottom: 5px; font-size: 0.8rem;">Tema:</div>
+    <div class="theme-buttons">
+      <div class="theme-btn theme-default" onclick="changeTheme('default')"></div>
+      <div class="theme-btn theme-dark" onclick="changeTheme('dark')"></div>
+      <div class="theme-btn theme-blue" onclick="changeTheme('blue')"></div>
+      <div class="theme-btn theme-red" onclick="changeTheme('red')"></div>
+    </div>
+  </div>
+
+  <div class="shortcut-keys">
+    <div style="margin-bottom: 5px; font-size: 0.8rem;">Atajos:</div>
+    <div><kbd>Ctrl</kbd> + <kbd>A</kbd> = Activar Todo</div>
+    <div><kbd>Ctrl</kbd> + <kbd>D</kbd> = Desactivar Todo</div>
+    <div><kbd>Ctrl</kbd> + <kbd>O</kbd> = Optimizar</div>
+    <div><kbd>Ctrl</kbd> + <kbd>I</kbd> = Verificar IPFS</div>
+  </div>
+
+  <div class="notification" id="notification">
+    <div id="notification-message"></div>
+  </div>
+
+  <script>
+    // ==================== SISTEMA FGME IPFS ====================
+    const IPFS_GATEWAY = "https://ipfs.io/ipfs/";
+    const CONTROL_HASH = "QmHashDelControlJSON"; // Hash IPFS JSON de control FGME
+
+    // Función para verificar e inyectar CSS/JS desde IPFS
+    async function cargarModulo(moduloIPFS, hashEsperado, tipo="css") {
+        try {
+            const res = await fetch(IPFS_GATEWAY + moduloIPFS);
+            const data = tipo==="css" ? await res.text() : await res.text();
+            const buffer = new TextEncoder().encode(data);
+            const digest = await crypto.subtle.digest("SHA-256", buffer);
+            const hashHex = Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,"0")).join("");
+            if(hashHex !== hashEsperado){ 
+                console.error("Hash inválido:", moduloIPFS); 
+                addLogEntry("ERROR: Hash inválido en módulo IPFS: " + moduloIPFS);
+                return; 
+            }
+
+            if(tipo==="css"){
+                const style = document.createElement("style");
+                style.textContent = data;
+                document.head.appendChild(style);
+            } else if(tipo==="js"){
+                const script = document.createElement("script");
+                script.textContent = data;
+                document.body.appendChild(script);
+            }
+            addLogEntry("Módulo IPFS cargado correctamente: " + moduloIPFS);
+            updateIPFSStatus(true, "Módulos IPFS cargados");
+        } catch(err){ 
+            console.error("Error al cargar modulo:", err); 
+            addLogEntry("ERROR al cargar módulo IPFS: " + err.message);
+            updateIPFSStatus(false, "Error cargando módulos IPFS");
+        }
+    }
+
+    // Bucle eterno para verificación y actualización de módulos
+    async function bucleEterno(){
+        try{
+            const res = await fetch(IPFS_GATEWAY + CONTROL_HASH);
+            const control = await res.json();
+
+            // Cargar CSS
+            await cargarModulo(control.css_ipfs, control.css_hash, "css");
+            // Cargar JS
+            for(let jsmod of control.js_modules){
+                await cargarModulo(jsmod.ipfs, jsmod.hash, "js");
+            }
+            
+            updateIPFSStatus(true, "Conectado a IPFS - Módulos verificados");
+            showNotification("Sistema IPFS actualizado correctamente", "success");
+        }catch(err){ 
+            console.error("Error en bucleEterno:", err); 
+            addLogEntry("ERROR en verificación IPFS: " + err.message);
+            updateIPFSStatus(false, "Error conectando a IPFS");
+        }
+    }
+
+    // Actualizar estado de IPFS
+    function updateIPFSStatus(connected, message) {
+        const statusIndicator = document.getElementById('ipfs-status');
+        const statusText = document.getElementById('ipfs-status-text');
+        
+        if (connected) {
+            statusIndicator.className = 'ipfs-indicator ipfs-connected';
+            statusText.textContent = message;
+        } else {
+            statusIndicator.className = 'ipfs-indicator ipfs-disconnected';
+            statusText.textContent = message;
+        }
+    }
+
+    // ==================== SISTEMA POWER PEG ====================
+    // Estado de los módulos
+    const modulesState = {
+      security: {
+        intrusionDetection: true,
+        adaptiveFirewall: true,
+        quantumEncryption: false
+      },
+      optimization: {
+        autoTuning: true,
+        resourceManagement: true,
+        predictiveLoadBalancing: false
+      },
+      analytics: {
+        threatIntelligence: true,
+        patternRecognition: true,
+        behavioralAnalysis: true
+      },
+      automation: {
+        autoRemediation: true,
+        responseAutomation: false,
+        selfHealing: false
+      }
+    };
+
+    // Crear partículas
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + 'vw';
+        particle.style.animationDelay = Math.random() * 5 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 5) + 's';
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    // Cambiar tema
+    function changeTheme(theme) {
+      document.body.className = '';
+      
+      switch(theme) {
+        case 'dark':
+          document.body.classList.add('dark-mode');
+          break;
+        case 'blue':
+          document.documentElement.style.setProperty('--primary-color', '#0077ff');
+          document.documentElement.style.setProperty('--secondary-color', '#00ccff');
+          document.documentElement.style.setProperty('--accent-color', '#5500ff');
+          break;
+        case 'red':
+          document.documentElement.style.setProperty('--primary-color', '#ff0000');
+          document.documentElement.style.setProperty('--secondary-color', '#ff9900');
+          document.documentElement.style.setProperty('--accent-color', '#ff00ff');
+          break;
+        default:
+          document.documentElement.style.setProperty('--primary-color', '#00ff00');
+          document.documentElement.style.setProperty('--secondary-color', '#00cccc');
+          document.documentElement.style.setProperty('--accent-color', '#ff00ff');
+      }
+      
+      showNotification(`Tema cambiado a ${theme}`, 'info');
+    }
+
+    // Mostrar notificación
+    function showNotification(message, type = 'default') {
+      const notification = document.getElementById('notification');
+      const messageElement = document.getElementById('notification-message');
+      
+      messageElement.textContent = message;
+      notification.className = 'notification';
+      notification.classList.add(type);
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    // Añadir entrada al log
+    function addLogEntry(message) {
+      const now = new Date();
+      const timestamp = `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]`;
+      
+      const logEntry = document.createElement('div');
+      logEntry.className = 'log-entry new';
+      logEntry.innerHTML = `<span class="timestamp">${timestamp}</span> ${message}`;
+      
+      const logContainer = document.getElementById('activation-log');
+      logContainer.appendChild(logEntry);
+      logContainer.scrollTop = logContainer.scrollHeight;
+      
+      // Quitar la clase de animación después de que termine
+      setTimeout(() => {
+        logEntry.classList.remove('new');
+      }, 2000);
+    }
+
+    // Actualizar estado visual de los módulos
+    function updateModuleVisualState() {
+      // Seguridad
+      updateToggleState('intrusionDetection', modulesState.security.intrusionDetection);
+      updateToggleState('adaptiveFirewall', modulesState.security.adaptiveFirewall);
+      updateToggleState('quantumEncryption', modulesState.security.quantumEncryption);
+      
+      // Optimización
+      updateToggleState('autoTuning', modulesState.optimization.autoTuning);
+      updateToggleState('resourceManagement', modulesState.optimization.resourceManagement);
+      updateToggleState('predictiveLoadBalancing', modulesState.optimization.predictiveLoadBalancing);
+      
+      // Analytics
+      updateToggleState('threatIntelligence', modulesState.analytics.threatIntelligence);
+      updateToggleState('patternRecognition', modulesState.analytics.patternRecognition);
+      updateToggleState('behavioralAnalysis', modulesState.analytics.behavioralAnalysis);
+      
+      // Automatización
+      updateToggleState('autoRemediation', modulesState.automation.autoRemediation);
+      updateToggleState('responseAutomation', modulesState.automation.responseAutomation);
+      updateToggleState('selfHealing', modulesState.automation.selfHealing);
+    }
+
+    function updateToggleState(moduleId, isActive) {
+      const toggle = document.querySelector(`input[data-module="${moduleId}"]`);
+      if (toggle) {
+        toggle.checked = isActive;
+        
+        // Actualizar indicador visual
+        const statusIndicator = toggle.closest('.module-status').querySelector('.status-indicator');
+        if (isActive) {
+          statusIndicator.className = 'status-indicator status-active';
+        } else {
+          statusIndicator.className = 'status-indicator status-inactive';
+        }
+      }
+    }
+
+    // Alternar módulo individual
+    function toggleModule(category, module) {
+      modulesState[category][module] = !modulesState[category][module];
+      updateToggleState(module, modulesState[category][module]);
+      
+      const status = modulesState[category][module] ? 'activado' : 'desactivado';
+      const message = `Módulo ${module} ${status}`;
+      addLogEntry(message);
+      showNotification(message, modulesState[category][module] ? 'success' : 'warning');
+    }
+
+    // Activar todos los módulos
+    function activateAllModules() {
+      const button = document.getElementById('activate-all-btn');
+      button.classList.add('loading');
+      
+      setTimeout(() => {
+        Object.keys(modulesState).forEach(category => {
+          Object.keys(modulesState[category]).forEach(module => {
+            modulesState[category][module] = true;
+          });
+        });
+        
+        updateModuleVisualState();
+        addLogEntry('Todos los módulos activados');
+        showNotification('Todos los módulos han sido activados', 'success');
+        simulatePerformanceBoost();
+        button.classList.remove('loading');
+      }, 1000);
+    }
+
+    // Desactivar todos los módulos
+    function deactivateAllModules() {
+      const button = document.getElementById('deactivate-all-btn');
+      button.classList.add('loading');
+      
+      setTimeout(() => {
+        Object.keys(modulesState).forEach(category => {
+          Object.keys(modulesState[category]).forEach(module => {
+            modulesState[category][module] = false;
+          });
+        });
+        
+        updateModuleVisualState();
+        addLogEntry('Todos los módulos desactivados');
+        showNotification('Todos los módulos han sido desactivados', 'warning');
+        button.classList.remove('loading');
+      }, 1000);
+    }
+
+    // Optimización del sistema
+    function optimizeSystem() {
+      const button = document.getElementById('optimize-btn');
+      button.classList.add('loading');
+      addLogEntry('Iniciando optimización completa del sistema...');
+      
+      // Simular proceso de optimización
+      setTimeout(() => {
+        activateAllModules();
+        addLogEntry('Optimización completada - Rendimiento mejorado en 35%');
+        showNotification('Optimización completada con éxito', 'success');
+        
+        // Actualizar estadísticas
+        document.getElementById('cpu-usage').textContent = '8%';
+        document.getElementById('memory-usage').textContent = '18%';
+        document.getElementById('network-usage').textContent = '12%';
+        document.getElementById('ai-efficiency').textContent = '99%';
+        button.classList.remove('loading');
+      }, 2000);
+    }
+
+    // Escaneo de seguridad
+    function runSecurityScan() {
+      const button = document.getElementById('scan-btn');
+      button.classList.add('loading');
+      addLogEntry('Iniciando escaneo de seguridad profundo...');
+      
+      // Simular escaneo
+      setTimeout(() => {
+        addLogEntry('Escaneo completado - 0 vulnerabilidades críticas detectadas');
+        addLogEntry('Sistema asegurado al 99.9%');
+        showNotification('Escaneo de seguridad completado - Sin vulnerabilidades', 'success');
+        button.classList.remove('loading');
+      }, 3000);
+    }
+
+    // Actualizar modelos de IA
+    function updateAIModels() {
+      const button = document.getElementById('update-btn');
+      button.classList.add('loading');
+      addLogEntry('Descargando últimos modelos de IA...');
+      
+      setTimeout(() => {
+        addLogEntry('Modelos actualizados - Mejora de precisión del 15%');
+        addLogEntry('Nuevos patrones de amenazas incorporados');
+        showNotification('Modelos de IA actualizados correctamente', 'success');
+        button.classList.remove('loading');
+      }, 2500);
+    }
+
+    // Protocolo de emergencia
+    function emergencyProtocol() {
+      const button = document.getElementById('emergency-btn');
+      button.classList.add('loading');
+      addLogEntry('¡PROTOCOLO DE EMERGENCIA ACTIVADO!');
+      addLogEntry('Activando todas las medidas de seguridad...');
+      
+      // Activar todo y maximizar seguridad
+      activateAllModules();
+      
+      setTimeout(() => {
+        addLogEntry('Sistema en modo paranoia máxima');
+        addLogEntry('Todos los protocolos de seguridad activados');
+        showNotification('Protocolo de emergencia activado', 'error');
+        button.classList.remove('loading');
+      }, 1500);
+    }
+
+    // Simular mejora de rendimiento
+    function simulatePerformanceBoost() {
+      const stats = {
+        cpu: 8,
+        memory: 18,
+        network: 12,
+        efficiency: 99
+      };
+      
+      animateStat('cpu-usage', stats.cpu);
+      animateStat('memory-usage', stats.memory);
+      animateStat('network-usage', stats.network);
+      animateStat('ai-efficiency', stats.efficiency);
+    }
+
+    // Animación de estadísticas
+    function animateStat(elementId, targetValue) {
+      const element = document.getElementById(elementId);
+      const currentValue = parseInt(element.textContent);
+      const duration = 1000;
+      const steps = 60;
+      const stepValue = (targetValue - currentValue) / steps;
+      
+      let currentStep = 0;
+      const interval = setInterval(() => {
+        if (currentStep >= steps) {
+          clearInterval(interval);
+          element.textContent = targetValue + '%';
+          return;
+        }
+        
+        const newValue = Math.round(currentValue + (stepValue * currentStep));
+        element.textContent = newValue + '%';
+        currentStep++;
+      }, duration / steps);
+    }
+
+    // Exportar configuración
+    function exportConfiguration() {
+      const config = {
+        timestamp: new Date().toISOString(),
+        user: "Fernando Guadalupe Méndez Espinoza",
+        system: "FGME Power Peg System",
+        modules: modulesState
+      };
+      
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", "fgme-powerpeg-config-" + new Date().toISOString().split('T')[0] + ".json");
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      
+      addLogEntry('Configuración exportada');
+      showNotification('Configuración exportada correctamente', 'success');
+    }
+
+    // Exportar log
+    function exportLog() {
+      const logEntries = document.querySelectorAll('.log-entry');
+      let logText = "FGME Power Peg System - Log de Sistema\n";
+      logText += "Usuario: Fernando Guadalupe Méndez Espinoza\n";
+      logText += "Sistema: FGME Power Peg con IPFS Integration\n";
+      logText += "Fecha: " + new Date().toLocaleString() + "\n\n";
+      
+      logEntries.forEach(entry => {
+        logText += entry.textContent + "\n";
+      });
+      
+      const dataStr = "data:text/plain;charset=utf-8," + encodeURIComponent(logText);
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", "fgme-powerpeg-log-" + new Date().toISOString().split('T')[0] + ".txt");
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      
+      addLogEntry('Log exportado');
+      showNotification('Log exportado correctamente', 'success');
+    }
+
+    // Atajos de teclado
+    function setupKeyboardShortcuts() {
+      document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey) {
+          switch(e.key) {
+            case 'a':
+            case 'A':
+              e.preventDefault();
+              activateAllModules();
+              break;
+            case 'd':
+            case 'D':
+              e.preventDefault();
+              deactivateAllModules();
+              break;
+            case 'o':
+            case 'O':
+              e.preventDefault();
+              optimizeSystem();
+              break;
+            case 'i':
+            case 'I':
+              e.preventDefault();
+              bucleEterno();
+              break;
+          }
+        }
+      });
+    }
+
+    // Inicializar event listeners para los toggle switches
+    function initToggleSwitches() {
+      document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+        toggle.addEventListener('change', function() {
+          const moduleId = this.getAttribute('data-module');
+          const category = this.getAttribute('data-category');
+          
+          if (moduleId && category && modulesState[category]) {
+            modulesState[category][moduleId] = this.checked;
+            
+            const status = this.checked ? 'activado' : 'desactivado';
+            const message = `Módulo ${moduleId} ${status}`;
+            addLogEntry(message);
+            showNotification(message, this.checked ? 'success' : 'warning');
+            
+            // Actualizar indicador visual
+            const statusIndicator = this.closest('.module-status').querySelector('.status-indicator');
+            if (this.checked) {
+              statusIndicator.className = 'status-indicator status-active';
+            } else {
+              statusIndicator.className = 'status-indicator status-inactive';
+            }
+          }
+        });
+      });
+    }
+
+    // Simular actividad del sistema
+    function simulateSystemActivity() {
+      setInterval(() => {
+        // Variación leve de las estadísticas
+        const cpuVariation = Math.random() * 5 - 2.5;
+        const memoryVariation = Math.random() * 3 - 1.5;
+        const networkVariation = Math.random() * 4 - 2;
+        
+        const currentCpu = parseInt(document.getElementById('cpu-usage').textContent);
+        const currentMemory = parseInt(document.getElementById('memory-usage').textContent);
+        const currentNetwork = parseInt(document.getElementById('network-usage').textContent);
+        
+        document.getElementById('cpu-usage').textContent = Math.max(5, Math.min(20, currentCpu + cpuVariation)).toFixed(0) + '%';
+        document.getElementById('memory-usage').textContent = Math.max(15, Math.min(30, currentMemory + memoryVariation)).toFixed(0) + '%';
+        document.getElementById('network-usage').textContent = Math.max(10, Math.min(25, currentNetwork + networkVariation)).toFixed(0) + '%';
+      }, 5000);
+    }
+
+    // Inicializar
+    function init() {
+      createParticles();
+      initToggleSwitches();
+      updateModuleVisualState();
+      simulateSystemActivity();
+      setupKeyboardShortcuts();
+      
+      // Inicializar sistema FGME
+      addLogEntry('Sistema FGME Power Peg inicializado');
+      addLogEntry('Usuario: Fernando Guadalupe Méndez Espinoza');
+      addLogEntry('Iniciando conexión IPFS...');
+      
+      // Iniciar bucle de verificación IPFS
+      bucleEterno();
+      setInterval(bucleEterno, 60000); // Verificación cada 60s
+    }
+
+    // Iniciar el sistema
+    init();
+  </script>
+</body>
+</html>
