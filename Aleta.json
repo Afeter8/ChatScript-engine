@@ -1,0 +1,8 @@
+{
+  "wallet": "0x123abcFGME",
+  "estado": "congelada",
+  "motivo": "Transacción sospechosa de lavado de dinero",
+  "reportado_por": ["Interpol", "FBI", "CNBV"],
+  "fecha": "2025-10-01T18:00:00Z",
+  "hash_blockchain": "0xa34f9e..."
+}
