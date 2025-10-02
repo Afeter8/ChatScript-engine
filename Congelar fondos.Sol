@@ -1,0 +1,29 @@
+pragma solidity ^0.8.0;
+
+contract FGMEProtector {
+    mapping(address => bool) public blacklist;
+    mapping(address => uint256) public balances;
+
+    event Bloqueo(address wallet, uint256 monto);
+    event Liberacion(address wallet, uint256 monto);
+
+    modifier soloAgencias() {
+        require(msg.sender == 0xAgenciaFGME, "No autorizado");
+        _;
+    }
+
+    function reportarIlícito(address wallet) public soloAgencias {
+        blacklist[wallet] = true;
+        emit Bloqueo(wallet, balances[wallet]);
+    }
+
+    function liberarFondos(address wallet) public soloAgencias {
+        blacklist[wallet] = false;
+        emit Liberacion(wallet, balances[wallet]);
+    }
+
+    function depositar() public payable {
+        require(!blacklist[msg.sender], "Wallet bloqueada");
+        balances[msg.sender] += msg.value;
+    }
+}
