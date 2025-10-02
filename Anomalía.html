@@ -1,0 +1,27 @@
+# fgme_ai_security.py
+import json
+import numpy as np
+from sklearn.ensemble import IsolationForest
+import joblib
+
+class FGME_AI_Security:
+    def __init__(self, model_path="fgme_ai_model.pkl"):
+        try:
+            self.model = joblib.load(model_path)
+        except:
+            self.model = IsolationForest(n_estimators=100, contamination=0.05)
+            self.model.fit(np.random.rand(100, 5))  # Entrenamiento inicial con datos simulados
+            joblib.dump(self.model, model_path)
+
+    def analizar_evento(self, evento: dict):
+        vector = np.array([[evento["cpu"], evento["mem"], evento["net"], evento["disk"], evento["proc"]]])
+        score = self.model.decision_function(vector)[0]
+        riesgo = self.model.predict(vector)[0]  # -1 = sospechoso
+        return {"riesgo": "ALTO" if riesgo == -1 else "BAJO", "score": score}
+
+# Ejemplo de uso
+if __name__ == "__main__":
+    ai = FGME_AI_Security()
+    evento = {"cpu": 0.9, "mem": 0.8, "net": 0.95, "disk": 0.7, "proc": 0.85}
+    resultado = ai.analizar_evento(evento)
+    print(json.dumps(resultado, indent=2))
